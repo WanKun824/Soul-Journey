@@ -2,7 +2,7 @@
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { Question, Dimension, UserDemographics, QuizAnswer, MatchProfile, Language, QuestionType } from "../types";
 
-const apiKey = process.env.API_KEY || '';
+const apiKey = 'AIzaSyAUVQqgpfESGpaelu9c_fWFZ5fd26Hr_Vc';
 
 // --- MASTER QUESTION BANK (Trilingual) ---
 interface BankQuestion {
