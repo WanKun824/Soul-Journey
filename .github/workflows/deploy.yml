@@ -1,0 +1,53 @@
+name: Deploy to Tencent Cloud
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+          script_stop: true
+          script: |
+            echo "🚀 Starting deployment..."
+
+            # 进入项目目录
+            cd /var/www/soulcompass || exit 1
+
+            # 拉取最新代码
+            echo "📥 Pulling latest code..."
+            git pull origin main
+
+            # 检查 .env 文件是否存在
+            if [ ! -f .env ]; then
+                echo "⚠️  Warning: .env file not found!"
+                echo "Please create .env file with your environment variables."
+                exit 1
+            fi
+
+            # 停止并删除旧容器
+            echo "🛑 Stopping old containers..."
+            docker-compose down
+
+            # 构建并启动新容器
+            echo "🔨 Building and starting new containers..."
+            docker-compose up -d --build
+
+            # 清理未使用的镜像
+            echo "🧹 Cleaning up unused images..."
+            docker image prune -f
+
+            # 显示运行状态
+            echo "✅ Deployment completed!"
+            docker-compose ps
+
+            echo "🌐 App is running at http://101.34.75.18"
